@@ -4,11 +4,20 @@ provider:
   name: aws
   runtime: go1.x
   region: eu-central-1
+  deploymentBucket:
+    name: sepet-deployment-bucket-eu-central-1
+    blockPublicAccess: true
+    versioning: true
+    serverSideEncryption: AES256
+
+plugins:
+  - serverless-deployment-bucket
 
 package:
   patterns:
     - '!./**'
     - ./bin/**
+
 functions:
   main-module:
     handler: bin/Main
