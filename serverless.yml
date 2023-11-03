@@ -4,32 +4,7 @@ provider:
   name: aws
   runtime: go1.x
   region: eu-central-1
-  versionFunctions: false
-  tracing:
-    apiGateway: true
-    lambda: true
-  memorySize: 128
-  environment:
-    REGION: "eu-central-1"
-    STAGE: ${opt:stage, self:provider.stage}
-  stackTags:
-    STACK: ${self:custom.SERVICE_NAME}
-    REGION: ${self:custom.STAGE}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - iam:PassRole
-      Resource: "*"
 
-  deploymentBucket:
-    blockPublicAccess: true
-    versioning: true
-    tags:
-      Environment: ${self:custom.STAGE}
-      ProductName: ${self:custom.SERVICE_NAME}-${self:custom.STAGE}
-custom:
-  STAGE: ${opt:stage, self:provider.stage}
-  SERVICE_NAME: sepet
 package:
   patterns:
     - '!./**'
@@ -47,3 +22,28 @@ functions:
           cors:
             origin: '*'
             headers: '*'
+      - http:
+          path: /remove-product
+          method: post
+          cors:
+            origin: '*'
+            headers: '*'
+      - http:
+          path: /empty-cart
+          method: post
+          cors:
+            origin: '*'
+            headers: '*'
+      - http:
+          path: /get-cart
+          method: post
+          cors:
+            origin: '*'
+            headers: '*'
+      - http:
+          path: /update-product
+          method: post
+          cors:
+            origin: '*'
+            headers: '*'
+
