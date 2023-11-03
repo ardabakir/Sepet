@@ -14,7 +14,7 @@ functions:
     handler: bin/Main
     environment:
       ENVIRONMENT: aws
-      SERVICE_STAGE_NAME: ${self:custom.SERVICE_NAME}-${self:custom.STAGE}
+      SERVICE_STAGE_NAME: sepet-main
     events:
       - http:
           path: /add-product

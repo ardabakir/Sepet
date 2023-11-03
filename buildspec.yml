@@ -13,7 +13,7 @@ phases:
       - echo Build ended
   build:
     commands:
-      - serverless deploy --stage main --region ${AWS_REGION}
+      - serverless deploy --param="stage=main" --param="region=${AWS_REGION}"
       - echo Deployed successfully
 artifacts:
   files:
