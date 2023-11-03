@@ -4,6 +4,7 @@ run-as: root
 phases:
   install:
     commands:
+      npm install -g serverless
 
   pre_build:
     commands:
