@@ -1,0 +1,19 @@
+version: 0.1
+run-as: root
+
+phases:
+  install:
+    commands:
+
+  pre_build:
+    commands:
+      - echo Build started
+      - GOOS=linux go build -o bin/Main Functions/Modules/main.go
+      - echo Build ended
+  build:
+    commands:
+      - serverless deploy --stage main --region ${AWS_REGION}
+      - echo Deployed successfully
+artifacts:
+  files:
+    - '**/*'
