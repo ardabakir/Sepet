@@ -8,7 +8,7 @@ phases:
   pre_build:
     commands:
       - echo Build started
-      - GOOS=linux go build -o bin/Main Functions/Modules/main.go
+      - GOOS=linux go build -o bin/Main main.go
       - echo Build ended
   build:
     commands:
