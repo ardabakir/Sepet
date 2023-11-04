@@ -11,7 +11,7 @@ phases:
   pre_build:
     commands:
       - echo Build started
-      - GOOS=linux go build -o bin/Main main.go
+      - GOARCH=amd64 GOOS=linux go build -o bin/Main Service/main.go
       - echo Build ended
   build:
     commands:
