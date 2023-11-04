@@ -17,7 +17,22 @@ package:
   patterns:
     - '!./**'
     - ./bin/**
-
+iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - "apigateway:*"
+    Resource: "*"
+  - Effect: Allow
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+      - dynamodb:ListTables
+      - dynamodb:DescribeTables
+    Resource: "*"
 functions:
   main-module:
     handler: bin/Main
