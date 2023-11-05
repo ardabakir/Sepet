@@ -80,8 +80,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: N
-          - AttributeName: cartId
-            AttributeType: N
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -92,10 +90,6 @@ resources:
         TableName: sepet-app-Carts
         AttributeDefinitions:
           - AttributeName: cartId
-            AttributeType: N
-          - AttributeName: cartItems
-            AttributeType: L
-          - AttributeName: userId
             AttributeType: N
         KeySchema:
           - AttributeName: cartId
@@ -108,16 +102,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: productId
             AttributeType: N
-          - AttributeName: brand
-            AttributeType: S
-          - AttributeName: productName
-            AttributeType: S
-          - AttributeName: stock
-            AttributeType: N
-          - AttributeName: Price
-            AttributeType: S
-          - AttributeName: description
-            AttributeType: S
         KeySchema:
           - AttributeName: productId
             KeyType: HASH
