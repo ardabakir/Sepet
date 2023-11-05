@@ -1,6 +1,7 @@
 package Service
 
 import (
+	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -20,6 +21,7 @@ func CreateConnection() (*dynamodb.DynamoDB, error) {
 	return dynamodb.New(sess), nil
 }
 
+//TODO: change product info parameter to productId
 func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 	conn, err := CreateConnection()
 	if err != nil {
@@ -41,6 +43,13 @@ func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
 		return err
 	}
+	items := cart.CartItems
+	for _, item := range items {
+		if item.ProductId == productInfo.ProductId {
+			err = errors.New("product is already in cart")
+			return err
+		}
+	}
 	cart.CartItems = append(cart.CartItems, productInfo)
 	attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
 	if attrErr != nil {
@@ -48,7 +57,7 @@ func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 	}
 	putInput := dynamodb.PutItemInput{
 		Item:      attrVal,
-		TableName: aws.String(os.Getenv("cart-table")),
+		TableName: aws.String(os.Getenv("CART_TABLE")),
 	}
 	_, putErr := conn.PutItem(&putInput)
 	if putErr != nil {
@@ -69,7 +78,7 @@ func RemoveProductFromCart(cartId int, productId int) error {
 				N: aws.String(string(cartId)),
 			},
 		},
-		TableName: aws.String(os.Getenv("cart-table")),
+		TableName: aws.String(os.Getenv("CART_TABLE")),
 	}
 	result, getErr := conn.GetItem(&getInput)
 	if getErr != nil {
@@ -93,7 +102,7 @@ func RemoveProductFromCart(cartId int, productId int) error {
 	}
 	putInput := dynamodb.PutItemInput{
 		Item:      attrVal,
-		TableName: aws.String(os.Getenv("cart-table")),
+		TableName: aws.String(os.Getenv("CART_TABLE")),
 	}
 	_, putErr := conn.PutItem(&putInput)
 	if putErr != nil {
@@ -114,7 +123,7 @@ func EmptyCart(cartId int) error {
 				N: aws.String(string(cartId)),
 			},
 		},
-		TableName: aws.String(os.Getenv("cart-table")),
+		TableName: aws.String(os.Getenv("CART_TABLE")),
 	}
 	result, getErr := conn.GetItem(&getInput)
 	if getErr != nil {
@@ -131,11 +140,63 @@ func EmptyCart(cartId int) error {
 	}
 	putInput := dynamodb.PutItemInput{
 		Item:      attrVal,
-		TableName: aws.String(os.Getenv("cart-table")),
+		TableName: aws.String(os.Getenv("CART_TABLE")),
 	}
 	_, putErr := conn.PutItem(&putInput)
 	if putErr != nil {
 		return putErr
 	}
 	return nil
+}
+
+func UpdateProduct(cartId int, productInfo Models.CartItem) error {
+	conn, err := CreateConnection()
+	if err != nil {
+		return err
+	}
+	getInput := dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cartId": {
+				N: aws.String(string(cartId)),
+			},
+		},
+		TableName: aws.String(os.Getenv("CART_TABLE")),
+	}
+	result, getErr := conn.GetItem(&getInput)
+	if getErr != nil {
+		return getErr
+	}
+	var cart *Models.Cart
+	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
+		return err
+	}
+
+	for index, item := range cart.CartItems {
+		if item.ProductId == productInfo.ProductId {
+			cart.CartItems[index].Amount = productInfo.Amount
+			attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
+			if attrErr != nil {
+				return attrErr
+			}
+			putInput := dynamodb.PutItemInput{
+				Item:      attrVal,
+				TableName: aws.String(os.Getenv("CART_TABLE")),
+			}
+			_, putErr := conn.PutItem(&putInput)
+			if putErr != nil {
+				return putErr
+			}
+			return nil
+		}
+	}
+	err = errors.New("product is not in the cart")
+	return err
+}
+
+func GetCart(userId int) error {
+	_, err := CreateConnection()
+	if err != nil {
+		return err
+	}
+	return err
 }
