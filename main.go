@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"sepet/Models"
 	"sepet/Service"
 )
 
@@ -19,12 +18,13 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		fmt.Println("add product")
 		response.StatusCode = 200
 		response.Body = "Add product"
-		jsonMap := &Models.CartRequest{}
-		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
+		if unmarshallErr != nil {
 			response.StatusCode = 400
-			return response, err
+			response.Body = "Request is not in correct format."
+			return response, unmarshallErr
 		}
-		err := Service.AddProductToCart(jsonMap.CartId, jsonMap.ProductInfo)
+		err := Service.AddProductToCart(requestBody.CartId, requestBody.ProductInfo)
 		if err != nil {
 			return events.APIGatewayProxyResponse{}, err
 		}
@@ -33,12 +33,13 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		fmt.Println("remove product")
 		response.StatusCode = 200
 		response.Body = "Remove product"
-		jsonMap := &Models.CartRequest{}
-		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
+		if unmarshallErr != nil {
 			response.StatusCode = 400
-			return response, err
+			response.Body = "Request is not in correct format."
+			return response, unmarshallErr
 		}
-		err := Service.RemoveProductFromCart(jsonMap.CartId, jsonMap.ProductId)
+		err := Service.RemoveProductFromCart(requestBody.CartId, requestBody.ProductId)
 		if err != nil {
 			return events.APIGatewayProxyResponse{}, err
 		}
@@ -47,12 +48,13 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		fmt.Println("remove all")
 		response.StatusCode = 200
 		response.Body = "Remove All"
-		jsonMap := &Models.CartRequest{}
-		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
+		if unmarshallErr != nil {
 			response.StatusCode = 400
-			return response, err
+			response.Body = "Request is not in correct format."
+			return response, unmarshallErr
 		}
-		err = Service.EmptyCart(jsonMap.CartId)
+		err = Service.EmptyCart(requestBody.CartId)
 		if err != nil {
 			response.StatusCode = 400
 			return response, err
@@ -62,17 +64,26 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		fmt.Println("update product")
 		response.StatusCode = 200
 		response.Body = "Update product"
-		jsonMap := &Models.CartRequest{}
-		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
+		if unmarshallErr != nil {
 			response.StatusCode = 400
-			return response, err
+			response.Body = "Request is not in correct format."
+			return response, unmarshallErr
 		}
-		err = Service.UpdateProduct(jsonMap.CartId, jsonMap.ProductInfo)
+		err = Service.UpdateProduct(requestBody.CartId, requestBody.ProductInfo)
 		return response, err
 	case "/get-cart":
 		fmt.Println("get cart data")
-		response.StatusCode = 200
 		response.Body = "Get Cart Data"
+		cart, err := Service.GetCart(request.Headers["Authorization"])
+		cartString, marshalErr := json.Marshal(cart)
+		if marshalErr != nil {
+			response.StatusCode = 500
+			response.Body = "Couldn't marshal cart to json"
+			return response, marshalErr
+		}
+		response.StatusCode = 200
+		response.Body = string(cartString)
 		return response, err
 	default:
 		fmt.Println("not valid")
