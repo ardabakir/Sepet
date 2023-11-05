@@ -71,3 +71,51 @@ functions:
             origin: '*'
             headers: '*'
 
+resources:
+  Resources:
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties: 
+        TableName: sepet-app-Users
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: N
+          - AttributeName: cartId
+            AttributeType: N
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+    CartTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: sepet-app-Carts
+        AttributeDefinitions:
+          - AttributeName: cartId
+            AttributeType: N
+          - AttributeName: cartItems
+            AttributeType: L
+          - AttributeName: userId
+            AttributeType: N
+        KeySchema:
+          - AttributeName: cartId
+            KeyType: HASH
+    ProductTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: sepet-app-Products
+        AttributeDefinitions:
+          - AttributeName: productId
+            AttributeType: N
+          - AttributeName: brand
+            AttributeType: S
+          - AttributeName: productName
+            AttributeType: S
+          - AttributeName: stock
+            AttributeType: N
+          - AttributeName: Price
+            AttributeType: S
+          - AttributeName: description
+            AttributeType: S
+        KeySchema:
+          - AttributeName: productId
+            KeyType: HASH
