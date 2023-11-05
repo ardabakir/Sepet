@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"sepet/Models"
+	"sepet/Service"
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -23,7 +24,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			response.StatusCode = 400
 			return response, err
 		}
-		AddProductToCart(jsonMap.CartId, jsonMap.ProductInfo)
+		err := Service.AddProductToCart(jsonMap.CartId, jsonMap.ProductInfo)
+		if err != nil {
+			return events.APIGatewayProxyResponse{}, err
+		}
 		return response, err
 	case "/remove-product":
 		fmt.Println("remove product")
@@ -34,7 +38,10 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			response.StatusCode = 400
 			return response, err
 		}
-		RemoveProductFromCart(jsonMap.CartId, jsonMap.ProductId)
+		err := Service.RemoveProductFromCart(jsonMap.CartId, jsonMap.ProductId)
+		if err != nil {
+			return events.APIGatewayProxyResponse{}, err
+		}
 		return response, err
 	case "/empty-cart":
 		fmt.Println("remove all")

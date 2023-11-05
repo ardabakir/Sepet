@@ -1,4 +1,4 @@
-package main
+package Service
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
@@ -101,4 +101,41 @@ func RemoveProductFromCart(cartId int, productId int) error {
 	}
 
 	return err
+}
+
+func EmptyCart(cartId int) error {
+	conn, err := CreateConnection()
+	if err != nil {
+		return err
+	}
+	getInput := dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cartId": {
+				N: aws.String(string(cartId)),
+			},
+		},
+		TableName: aws.String(os.Getenv("cart-table")),
+	}
+	result, getErr := conn.GetItem(&getInput)
+	if getErr != nil {
+		return getErr
+	}
+	var cart *Models.Cart
+	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
+		return err
+	}
+	cart.CartItems = nil
+	attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
+	if attrErr != nil {
+		return attrErr
+	}
+	putInput := dynamodb.PutItemInput{
+		Item:      attrVal,
+		TableName: aws.String(os.Getenv("cart-table")),
+	}
+	_, putErr := conn.PutItem(&putInput)
+	if putErr != nil {
+		return putErr
+	}
+	return nil
 }
