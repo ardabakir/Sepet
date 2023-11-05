@@ -85,6 +85,7 @@ resources:
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
     CartTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -99,6 +100,7 @@ resources:
         KeySchema:
           - AttributeName: cartId
             KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
     ProductTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -119,3 +121,4 @@ resources:
         KeySchema:
           - AttributeName: productId
             KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
