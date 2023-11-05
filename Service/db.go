@@ -5,9 +5,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"os"
 	"sepet/Models"
+	"sepet/Repositories"
 )
 
 func CreateConnection() (*dynamodb.DynamoDB, error) {
@@ -21,44 +20,22 @@ func CreateConnection() (*dynamodb.DynamoDB, error) {
 	return dynamodb.New(sess), nil
 }
 
-func AddProductToCart(cartId string, productInfo Models.CartItem) error {
-	conn, err := CreateConnection()
-	if err != nil {
-		return err
-	}
-	getInput := dynamodb.GetItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"cartId": {
-				S: aws.String(cartId),
-			},
-		},
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	result, getErr := conn.GetItem(&getInput)
+func AddProductToCart(cartId string, productInfo Models.CartItem, cartRepo *Repositories.CartRepository) error {
+
+	cart, getErr := cartRepo.GetItem(cartId, "cartId")
 	if getErr != nil {
 		return getErr
 	}
-	var cart *Models.Cart
-	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
-		return err
-	}
+
 	items := cart.CartItems
 	for _, item := range items {
 		if item.ProductId == productInfo.ProductId {
-			err = errors.New("product is already in cart")
+			err := errors.New("product is already in cart")
 			return err
 		}
 	}
 	cart.CartItems = append(cart.CartItems, productInfo)
-	attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
-	if attrErr != nil {
-		return attrErr
-	}
-	putInput := dynamodb.PutItemInput{
-		Item:      attrVal,
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	_, putErr := conn.PutItem(&putInput)
+	putErr := cartRepo.PutItem(*cart)
 	if putErr != nil {
 		return putErr
 	}
@@ -66,26 +43,11 @@ func AddProductToCart(cartId string, productInfo Models.CartItem) error {
 	return nil
 }
 
-func RemoveProductFromCart(cartId string, productId string) error {
-	conn, err := CreateConnection()
-	if err != nil {
-		return err
-	}
-	getInput := dynamodb.GetItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"cartId": {
-				S: aws.String(cartId),
-			},
-		},
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	result, getErr := conn.GetItem(&getInput)
+func RemoveProductFromCart(cartId string, productId string, cartRepo *Repositories.CartRepository) error {
+
+	cart, getErr := cartRepo.GetItem(cartId, "cartId")
 	if getErr != nil {
 		return getErr
-	}
-	var cart *Models.Cart
-	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
-		return err
 	}
 	items := cart.CartItems
 	for index, item := range items {
@@ -95,123 +57,51 @@ func RemoveProductFromCart(cartId string, productId string) error {
 			break
 		}
 	}
-	attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
-	if attrErr != nil {
-		return attrErr
-	}
-	putInput := dynamodb.PutItemInput{
-		Item:      attrVal,
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	_, putErr := conn.PutItem(&putInput)
+	putErr := cartRepo.PutItem(*cart)
 	if putErr != nil {
 		return putErr
 	}
 
-	return err
+	return nil
 }
 
-func EmptyCart(cartId string) error {
-	conn, err := CreateConnection()
-	if err != nil {
-		return err
-	}
-	getInput := dynamodb.GetItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"cartId": {
-				S: aws.String(cartId),
-			},
-		},
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	result, getErr := conn.GetItem(&getInput)
+func EmptyCart(cartId string, cartRepo *Repositories.CartRepository) error {
+	cart, getErr := cartRepo.GetItem(cartId, "cartId")
 	if getErr != nil {
 		return getErr
 	}
-	var cart *Models.Cart
-	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
-		return err
-	}
 	cart.CartItems = nil
-	attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
-	if attrErr != nil {
-		return attrErr
-	}
-	putInput := dynamodb.PutItemInput{
-		Item:      attrVal,
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	_, putErr := conn.PutItem(&putInput)
+	putErr := cartRepo.PutItem(*cart)
 	if putErr != nil {
 		return putErr
 	}
 	return nil
 }
 
-func UpdateProduct(cartId string, productInfo Models.CartItem) error {
-	conn, err := CreateConnection()
-	if err != nil {
-		return err
-	}
-	getInput := dynamodb.GetItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"cartId": {
-				S: aws.String(cartId),
-			},
-		},
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	result, getErr := conn.GetItem(&getInput)
+func UpdateProduct(cartId string, productInfo Models.CartItem, cartRepo *Repositories.CartRepository) error {
+	cart, getErr := cartRepo.GetItem(cartId, "cartId")
 	if getErr != nil {
 		return getErr
-	}
-	var cart *Models.Cart
-	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
-		return err
 	}
 
 	for index, item := range cart.CartItems {
 		if item.ProductId == productInfo.ProductId {
 			cart.CartItems[index].Amount = productInfo.Amount
-			attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
-			if attrErr != nil {
-				return attrErr
-			}
-			putInput := dynamodb.PutItemInput{
-				Item:      attrVal,
-				TableName: aws.String(os.Getenv("CART_TABLE")),
-			}
-			_, putErr := conn.PutItem(&putInput)
+			putErr := cartRepo.PutItem(*cart)
 			if putErr != nil {
 				return putErr
 			}
 			return nil
 		}
 	}
-	err = errors.New("product is not in the cart")
+	err := errors.New("product is not in the cart")
 	return err
 }
 
-func GetCart(userId string) (*Models.Cart, error) {
-	conn, err := CreateConnection()
-	if err != nil {
-		return nil, err
-	}
-	getInput := dynamodb.GetItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"userId": {
-				S: aws.String(userId),
-			},
-		},
-		TableName: aws.String(os.Getenv("CART_TABLE")),
-	}
-	result, getErr := conn.GetItem(&getInput)
+func GetCart(userId string, cartRepo *Repositories.CartRepository) (*Models.Cart, error) {
+	cart, getErr := cartRepo.GetItem(userId, "userId")
 	if getErr != nil {
 		return nil, getErr
-	}
-	var cart *Models.Cart
-	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
-		return nil, err
 	}
 	return cart, nil
 }

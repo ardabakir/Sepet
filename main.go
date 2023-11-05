@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"os"
+	"sepet/Database"
+	"sepet/Repositories"
 	"sepet/Service"
 )
 
@@ -13,6 +16,14 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	path := request.Resource
 	var response events.APIGatewayProxyResponse
 	var err error
+	conn, connErr := Service.CreateConnection()
+	cartDb := Database.NewDynamoDB(os.Getenv("CART_TABLE"), conn)
+	cartRepository := Repositories.NewCartRepository(cartDb)
+	if connErr != nil {
+		response.StatusCode = 500
+		response.Body = "Couldn't establish connection with DynamoDB"
+		return response, connErr
+	}
 	switch path {
 	case "/add-product":
 		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
@@ -21,7 +32,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			response.Body = "Request is not in correct format."
 			return response, unmarshallErr
 		}
-		err := Service.AddProductToCart(requestBody.CartId, requestBody.ProductInfo)
+		err := Service.AddProductToCart(requestBody.CartId, requestBody.ProductInfo, cartRepository)
 		if err != nil {
 			response.StatusCode = 400
 			response.Body = err.Error()
@@ -37,7 +48,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			response.Body = "Request is not in correct format."
 			return response, unmarshallErr
 		}
-		err := Service.RemoveProductFromCart(requestBody.CartId, requestBody.ProductId)
+		err := Service.RemoveProductFromCart(requestBody.CartId, requestBody.ProductId, cartRepository)
 		if err != nil {
 			response.StatusCode = 400
 			response.Body = err.Error()
@@ -53,7 +64,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			response.Body = "Request is not in correct format."
 			return response, unmarshallErr
 		}
-		err = Service.EmptyCart(requestBody.CartId)
+		err = Service.EmptyCart(requestBody.CartId, cartRepository)
 		if err != nil {
 			response.StatusCode = 400
 			response.Body = err.Error()
@@ -71,7 +82,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			response.Body = "Request is not in correct format."
 			return response, unmarshallErr
 		}
-		err = Service.UpdateProduct(requestBody.CartId, requestBody.ProductInfo)
+		err = Service.UpdateProduct(requestBody.CartId, requestBody.ProductInfo, cartRepository)
 		if err != nil {
 			response.StatusCode = 400
 			response.Body = err.Error()
@@ -81,7 +92,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		response.Body = "Successfully updated product"
 		return response, err
 	case "/get-cart":
-		cart, err := Service.GetCart(request.Headers["Authorization"])
+		cart, err := Service.GetCart(request.Headers["Authorization"], cartRepository)
 		if err != nil {
 			response.StatusCode = 400
 			response.Body = err.Error()
