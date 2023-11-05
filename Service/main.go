@@ -8,7 +8,9 @@ import (
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	path := request.Resource
+	path := request.Path
+	fmt.Println(path)
+	fmt.Println(request.Resource)
 	var response events.APIGatewayProxyResponse
 	var err error
 	switch path {
