@@ -106,9 +106,8 @@ resources:
                 KeyType: HASH
               - AttributeName: cartId
                 KeyType: RANGE
-
-
-
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
     ProductTable:
       Type: AWS::DynamoDB::Table
