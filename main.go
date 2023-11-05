@@ -47,11 +47,27 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		fmt.Println("remove all")
 		response.StatusCode = 200
 		response.Body = "Remove All"
+		jsonMap := &Models.CartRequest{}
+		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+			response.StatusCode = 400
+			return response, err
+		}
+		err = Service.EmptyCart(jsonMap.CartId)
+		if err != nil {
+			response.StatusCode = 400
+			return response, err
+		}
 		return response, err
 	case "/update-product":
 		fmt.Println("update product")
 		response.StatusCode = 200
 		response.Body = "Update product"
+		jsonMap := &Models.CartRequest{}
+		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+			response.StatusCode = 400
+			return response, err
+		}
+		err = Service.UpdateProduct(jsonMap.CartId, jsonMap.ProductInfo)
 		return response, err
 	case "/get-cart":
 		fmt.Println("get cart data")
