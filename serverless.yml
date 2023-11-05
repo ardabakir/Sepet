@@ -82,7 +82,7 @@ resources:
         TableName: sepet-app-Users
         AttributeDefinitions:
           - AttributeName: userId
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -93,7 +93,7 @@ resources:
         TableName: sepet-app-Carts
         AttributeDefinitions:
           - AttributeName: cartId
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           - AttributeName: cartId
             KeyType: HASH
@@ -104,7 +104,7 @@ resources:
         TableName: sepet-app-Products
         AttributeDefinitions:
           - AttributeName: productId
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           - AttributeName: productId
             KeyType: HASH

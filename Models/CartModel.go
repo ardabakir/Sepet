@@ -1,13 +1,12 @@
 package Models
 
 type Cart struct {
-	CartId    int        `json:"cartId"`
-	UserId    int        `json:"userId"`
+	CartId    string     `json:"cartId"`
+	UserId    string     `json:"userId"`
 	CartItems []CartItem `json:"cartItems"`
 }
 
 type CartItem struct {
-	CartId    int `json:"cartId"`
-	ProductId int `json:"productId"`
-	Amount    int `json:"amount"`
+	ProductId string `json:"productId"`
+	Amount    string `json:"amount"`
 }
