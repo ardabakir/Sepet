@@ -94,9 +94,21 @@ resources:
         AttributeDefinitions:
           - AttributeName: cartId
             AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
         KeySchema:
           - AttributeName: cartId
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: userId-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: cartId
+                KeyType: RANGE
+
+
+
         BillingMode: PAY_PER_REQUEST
     ProductTable:
       Type: AWS::DynamoDB::Table
