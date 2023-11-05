@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"sepet/Models"
 )
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -16,11 +18,23 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		fmt.Println("add product")
 		response.StatusCode = 200
 		response.Body = "Add product"
+		jsonMap := &Models.CartRequest{}
+		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+			response.StatusCode = 400
+			return response, err
+		}
+		AddProductToCart(jsonMap.CartId, jsonMap.ProductInfo)
 		return response, err
 	case "/remove-product":
 		fmt.Println("remove product")
 		response.StatusCode = 200
 		response.Body = "Remove product"
+		jsonMap := &Models.CartRequest{}
+		if err := json.Unmarshal([]byte(request.Body), jsonMap); err != nil {
+			response.StatusCode = 400
+			return response, err
+		}
+		RemoveProductFromCart(jsonMap.CartId, jsonMap.ProductId)
 		return response, err
 	case "/empty-cart":
 		fmt.Println("remove all")

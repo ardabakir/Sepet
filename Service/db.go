@@ -22,7 +22,6 @@ func CreateConnection() (*dynamodb.DynamoDB, error) {
 
 func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 	conn, err := CreateConnection()
-
 	if err != nil {
 		return err
 	}
@@ -42,8 +41,8 @@ func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
 		return err
 	}
-	updatedItems := append(cart.CartItems, productInfo)
-	attrVal, attrErr := dynamodbattribute.MarshalMap(updatedItems)
+	cart.CartItems = append(cart.CartItems, productInfo)
+	attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
 	if attrErr != nil {
 		return attrErr
 	}
@@ -57,4 +56,49 @@ func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 	}
 
 	return nil
+}
+
+func RemoveProductFromCart(cartId int, productId int) error {
+	conn, err := CreateConnection()
+	if err != nil {
+		return err
+	}
+	getInput := dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cartId": {
+				N: aws.String(string(cartId)),
+			},
+		},
+		TableName: aws.String(os.Getenv("cart-table")),
+	}
+	result, getErr := conn.GetItem(&getInput)
+	if getErr != nil {
+		return getErr
+	}
+	var cart *Models.Cart
+	if err := dynamodbattribute.UnmarshalMap(result.Item, &cart); err != nil {
+		return err
+	}
+	items := cart.CartItems
+	for index, item := range items {
+		if item.ProductId == productId {
+			items[index] = items[len(items)-1]
+			cart.CartItems = items[:len(items)-1]
+			break
+		}
+	}
+	attrVal, attrErr := dynamodbattribute.MarshalMap(cart)
+	if attrErr != nil {
+		return attrErr
+	}
+	putInput := dynamodb.PutItemInput{
+		Item:      attrVal,
+		TableName: aws.String(os.Getenv("cart-table")),
+	}
+	_, putErr := conn.PutItem(&putInput)
+	if putErr != nil {
+		return putErr
+	}
+
+	return err
 }
