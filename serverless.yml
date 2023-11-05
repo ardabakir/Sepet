@@ -39,6 +39,9 @@ functions:
     environment:
       ENVIRONMENT: aws
       SERVICE_STAGE_NAME: sepet-main
+      cart-table: sepet-app-Carts
+      user-table: sepet-app-Users
+      product-table: sepet-app-Products
     events:
       - http:
           path: /add-product
