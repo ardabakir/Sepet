@@ -33,7 +33,7 @@ func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 				N: aws.String(string(cartId)),
 			},
 		},
-		TableName: aws.String(os.Getenv("cart-table")),
+		TableName: aws.String(os.Getenv("CART_TABLE")),
 	}
 	result, getErr := conn.GetItem(&getInput)
 	if getErr != nil {
