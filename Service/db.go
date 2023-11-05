@@ -21,7 +21,6 @@ func CreateConnection() (*dynamodb.DynamoDB, error) {
 	return dynamodb.New(sess), nil
 }
 
-//TODO: change product info parameter to productId
 func AddProductToCart(cartId string, productInfo Models.CartItem) error {
 	conn, err := CreateConnection()
 	if err != nil {
@@ -75,7 +74,7 @@ func RemoveProductFromCart(cartId string, productId string) error {
 	getInput := dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"cartId": {
-				N: aws.String(string(cartId)),
+				N: aws.String(cartId),
 			},
 		},
 		TableName: aws.String(os.Getenv("CART_TABLE")),
@@ -120,7 +119,7 @@ func EmptyCart(cartId string) error {
 	getInput := dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"cartId": {
-				N: aws.String(string(cartId)),
+				N: aws.String(cartId),
 			},
 		},
 		TableName: aws.String(os.Getenv("CART_TABLE")),
@@ -157,7 +156,7 @@ func UpdateProduct(cartId string, productInfo Models.CartItem) error {
 	getInput := dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"cartId": {
-				N: aws.String(string(cartId)),
+				N: aws.String(cartId),
 			},
 		},
 		TableName: aws.String(os.Getenv("CART_TABLE")),
@@ -193,7 +192,7 @@ func UpdateProduct(cartId string, productInfo Models.CartItem) error {
 	return err
 }
 
-func GetCart(userId int) error {
+func GetCart(userId string) error {
 	_, err := CreateConnection()
 	if err != nil {
 		return err
