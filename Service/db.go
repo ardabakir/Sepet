@@ -22,7 +22,7 @@ func CreateConnection() (*dynamodb.DynamoDB, error) {
 }
 
 //TODO: change product info parameter to productId
-func AddProductToCart(cartId int, productInfo Models.CartItem) error {
+func AddProductToCart(cartId string, productInfo Models.CartItem) error {
 	conn, err := CreateConnection()
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func AddProductToCart(cartId int, productInfo Models.CartItem) error {
 	return nil
 }
 
-func RemoveProductFromCart(cartId int, productId int) error {
+func RemoveProductFromCart(cartId string, productId string) error {
 	conn, err := CreateConnection()
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func RemoveProductFromCart(cartId int, productId int) error {
 	return err
 }
 
-func EmptyCart(cartId int) error {
+func EmptyCart(cartId string) error {
 	conn, err := CreateConnection()
 	if err != nil {
 		return err
@@ -149,7 +149,7 @@ func EmptyCart(cartId int) error {
 	return nil
 }
 
-func UpdateProduct(cartId int, productInfo Models.CartItem) error {
+func UpdateProduct(cartId string, productInfo Models.CartItem) error {
 	conn, err := CreateConnection()
 	if err != nil {
 		return err
