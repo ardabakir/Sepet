@@ -15,9 +15,6 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 	var err error
 	switch path {
 	case "/add-product":
-		fmt.Println("add product")
-		response.StatusCode = 200
-		response.Body = "Add product"
 		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
 		if unmarshallErr != nil {
 			response.StatusCode = 400
@@ -26,13 +23,14 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}
 		err := Service.AddProductToCart(requestBody.CartId, requestBody.ProductInfo)
 		if err != nil {
-			return events.APIGatewayProxyResponse{}, err
+			response.StatusCode = 400
+			response.Body = err.Error()
+			return response, err
 		}
+		response.StatusCode = 200
+		response.Body = "Successfully added product"
 		return response, err
 	case "/remove-product":
-		fmt.Println("remove product")
-		response.StatusCode = 200
-		response.Body = "Remove product"
 		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
 		if unmarshallErr != nil {
 			response.StatusCode = 400
@@ -41,13 +39,14 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		}
 		err := Service.RemoveProductFromCart(requestBody.CartId, requestBody.ProductId)
 		if err != nil {
-			return events.APIGatewayProxyResponse{}, err
+			response.StatusCode = 400
+			response.Body = err.Error()
+			return response, err
 		}
+		response.StatusCode = 200
+		response.Body = "Successfully removed product"
 		return response, err
 	case "/empty-cart":
-		fmt.Println("remove all")
-		response.StatusCode = 200
-		response.Body = "Remove All"
 		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
 		if unmarshallErr != nil {
 			response.StatusCode = 400
@@ -57,13 +56,15 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		err = Service.EmptyCart(requestBody.CartId)
 		if err != nil {
 			response.StatusCode = 400
+			response.Body = err.Error()
 			return response, err
 		}
+		response.StatusCode = 200
+		response.Body = "Successfully removed all products from the cart"
 		return response, err
 	case "/update-product":
 		fmt.Println("update product")
-		response.StatusCode = 200
-		response.Body = "Update product"
+
 		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
 		if unmarshallErr != nil {
 			response.StatusCode = 400
@@ -71,11 +72,21 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			return response, unmarshallErr
 		}
 		err = Service.UpdateProduct(requestBody.CartId, requestBody.ProductInfo)
+		if err != nil {
+			response.StatusCode = 400
+			response.Body = err.Error()
+			return response, err
+		}
+		response.StatusCode = 200
+		response.Body = "Successfully updated product"
 		return response, err
 	case "/get-cart":
-		fmt.Println("get cart data")
-		response.Body = "Get Cart Data"
 		cart, err := Service.GetCart(request.Headers["Authorization"])
+		if err != nil {
+			response.StatusCode = 400
+			response.Body = err.Error()
+			return response, err
+		}
 		cartString, marshalErr := json.Marshal(cart)
 		if marshalErr != nil {
 			response.StatusCode = 500

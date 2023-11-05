@@ -29,7 +29,7 @@ func AddProductToCart(cartId string, productInfo Models.CartItem) error {
 	getInput := dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"cartId": {
-				S: aws.String(string(cartId)),
+				S: aws.String(cartId),
 			},
 		},
 		TableName: aws.String(os.Getenv("CART_TABLE")),
