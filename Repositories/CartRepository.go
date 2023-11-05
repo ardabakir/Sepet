@@ -15,7 +15,7 @@ type CartRepository struct {
 
 func (repo *CartRepository) GetItem(key string, keyName string) (*Models.Cart, error) {
 	var cart *Models.Cart
-	if err := repo.database.GetItem(key, keyName, cart); err != nil {
+	if err := repo.database.GetItem(key, keyName, &cart); err != nil {
 		return nil, err
 	}
 	return cart, nil
