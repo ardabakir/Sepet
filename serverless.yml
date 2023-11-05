@@ -63,7 +63,7 @@ functions:
             headers: '*'
       - http:
           path: /get-cart
-          method: post
+          method: get
           cors:
             origin: '*'
             headers: '*'
