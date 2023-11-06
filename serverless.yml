@@ -4,6 +4,22 @@ provider:
   name: aws
   runtime: go1.x
   region: eu-central-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "apigateway:*"
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:ListTables
+        - dynamodb:DescribeTables
+      Resource: "*"
   deploymentBucket:
     name: sepet-deployment-bucket-eu-central-1
     blockPublicAccess: true
@@ -17,22 +33,7 @@ package:
   patterns:
     - '!./**'
     - ./bin/**
-iamRoleStatements:
-  - Effect: Allow
-    Action:
-      - "apigateway:*"
-    Resource: "*"
-  - Effect: Allow
-    Action:
-      - dynamodb:Query
-      - dynamodb:Scan
-      - dynamodb:GetItem
-      - dynamodb:PutItem
-      - dynamodb:UpdateItem
-      - dynamodb:DeleteItem
-      - dynamodb:ListTables
-      - dynamodb:DescribeTables
-    Resource: "*"
+
 functions:
   main-module:
     handler: bin/Main
