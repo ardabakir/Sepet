@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"os"
@@ -54,7 +53,7 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 			response.Body = err.Error()
 			return response, err
 		}
-		response.StatusCode = 200
+		response.StatusCode = 204
 		response.Body = "Successfully removed product"
 		return response, err
 	case "/empty-cart":
@@ -74,8 +73,6 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		response.Body = "Successfully removed all products from the cart"
 		return response, err
 	case "/update-product":
-		fmt.Println("update product")
-
 		requestBody, unmarshallErr := Service.UnmarshalRequestBody(&request.Body)
 		if unmarshallErr != nil {
 			response.StatusCode = 400
@@ -108,7 +105,6 @@ func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		response.Body = string(cartString)
 		return response, err
 	default:
-		fmt.Println("not valid")
 		response.StatusCode = 400
 		response.Body = "Not valid"
 		return response, err
