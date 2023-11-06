@@ -1,0 +1,55 @@
+{
+  "addProductRequest": {
+    "Body": {
+      "cartId": "1",
+      "productInfo": {
+        "productId": "29",
+        "amount": "1"
+      }
+    },
+    "Headers": {
+      "Authorization": "1"
+    }
+  },
+  "addExistingProductRequest": {
+    "Body": {
+      "cartId": "1",
+      "productInfo": {
+        "productId": "15",
+        "amount": "2"
+      }
+    },
+    "Headers": {
+      "Authorization": "1"
+    }
+  },
+  "removeProductRequest": {
+    "Body": {
+      "cartId": "1",
+      "productId": "29"
+    },
+    "Headers": {
+      "Authorization": "1"
+    }
+  },
+  "emptyCartRequest": {
+    "Body": {
+      "cartId": "1"
+    },
+    "Headers": {
+      "Authorization": "1"
+    }
+  },
+  "updateProductRequest": {
+    "Body": {
+      "cartId": "1",
+      "productInfo": {
+        "productId": "29",
+        "amount": "8"
+      }
+    },
+    "Headers": {
+      "Authorization": "1"
+    }
+  }
+}

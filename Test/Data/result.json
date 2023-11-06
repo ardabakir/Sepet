@@ -1,0 +1,20 @@
+{
+  "getCartResult": {
+      "cartId": "1",
+      "userId": "1",
+      "cartItems": [
+        {
+          "productId": "15",
+          "amount": "4"
+        },
+        {
+          "productId": "29",
+          "amount": "2"
+        },
+        {
+          "productId": "3",
+          "amount": "1"
+        }
+      ]
+  }
+}
